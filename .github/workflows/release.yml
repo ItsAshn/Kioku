@@ -11,6 +11,7 @@ permissions:
 jobs:
   release:
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
@@ -25,12 +26,16 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      # node-gyp (used when electron-builder rebuilds native modules such as
+      # get-windows) needs distutils, which was removed in Python 3.12. Pin 3.11
+      # so all runners have it without extra shims.
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Install dependencies
         run: npm ci
-
-      - name: Install setuptools (Windows only)
-        if: runner.os == 'Windows'
-        run: pip install setuptools
 
       - name: Build and publish
         env:
