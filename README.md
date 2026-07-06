@@ -2,7 +2,7 @@
 
 > **Know where your hours go.** KIOKU automatically monitors which applications you use and for how long — no manual timers, no input required.
 
-![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-blue)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)
 ![Electron](https://img.shields.io/badge/Electron-v33-47848F?logo=electron)
 ![React](https://img.shields.io/badge/React-v18-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-v5-3178C6?logo=typescript)
@@ -40,15 +40,45 @@ All data is stored locally in a SQLite database. Nothing is sent to any server.
 
 ---
 
-## Installation
+Grab the build for your platform from the [Releases](https://github.com/ItsAshn/Kioku/releases) page. KIOKU installs per-user (no admin required), starts tracking immediately, and lives in your system tray.
 
-Download the latest installer from the [Releases](https://github.com/ItsAshn/Kioku/releases) page and run the `.exe`.
+| Platform | Download | In-app auto-update |
+|----------|----------|--------------------|
+| Windows | `.exe` (NSIS installer) | ✅ Yes |
+| macOS | `.dmg` (Apple Silicon + Intel) | ⚠️ Requires code signing (not yet available) |
+| Linux | `.AppImage` (recommended), `.deb`, `.tar.gz` | ✅ AppImage only |
 
-The app installs per-user (no admin required) and starts tracking immediately. It lives in your system tray.
+### Quick install (one-liner)
+
+These scripts fetch the latest release, install it, and handle the unsigned-app warnings for you (macOS quarantine / Windows Mark-of-the-Web).
+
+**Windows** — PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/ItsAshn/Kioku/main/scripts/install-windows.ps1 | iex
+```
+
+**macOS** — Terminal:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ItsAshn/Kioku/main/scripts/install-macos.sh | bash
+```
+
+**Linux** — Terminal:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ItsAshn/Kioku/main/scripts/install-linux.sh | bash
+```
+
+> Prefer to see what you're running first? The scripts live in [`scripts/`](scripts/). Manual per-platform instructions are below.
+
+### Windows
+
+Download and run the `.exe`.
 
 **Data location**: `%APPDATA%\KIOKU\`
 
-### Windows SmartScreen Warning
+#### Windows SmartScreen Warning
 
 Because the installer is currently unsigned, Windows SmartScreen may show a *"Windows protected your PC"* dialog. This is expected. To proceed:
 
@@ -56,6 +86,23 @@ Because the installer is currently unsigned, Windows SmartScreen may show a *"Wi
 2. Click **Run anyway**
 
 The application is safe. This warning appears for any installer without a paid code-signing certificate.
+
+### macOS
+
+The [quick-install script](#quick-install-one-liner) is the easiest route — it installs the app and removes the quarantine flag so Gatekeeper won't block it.
+
+To install manually instead, download the `.dmg` for your chip (Apple Silicon `arm64` or Intel `x64`), open it, and drag **KIOKU** to your Applications folder.
+
+Because the app is currently unsigned/un-notarized, macOS Gatekeeper will block the first launch of a manually-downloaded build with an *"KIOKU can't be opened because Apple cannot check it for malicious software"* message. To proceed:
+
+1. Right-click (or Control-click) **KIOKU** in Applications and choose **Open**, then confirm **Open** in the dialog — or
+2. Go to **System Settings → Privacy & Security**, scroll to the blocked-app notice, and click **Open Anyway**.
+
+**Screen Recording permission**: KIOKU reads the title of your active window to identify what you're using. On first run, macOS prompts for **Screen Recording** permission (**System Settings → Privacy & Security → Screen Recording**). Grant it and restart the app, otherwise tracking will only see process names, not window titles.
+
+**Auto-updates** are not yet available on macOS — they require an Apple Developer code-signing certificate. Check the Releases page for new versions.
+
+**Data location**: `~/Library/Application Support/KIOKU/`
 
 ### Linux
 
@@ -105,14 +152,15 @@ Starts Electron with hot reload for the renderer process.
 
 ```bash
 npm run build      # Build JS/CSS bundles only
-npm run package    # Build + create Windows NSIS installer
+npm run package    # Build + package an installer for the current OS
+                   #   Windows → .exe · macOS → .dmg/.zip · Linux → .AppImage/.deb/.tar.gz
 ```
 
 ## Privacy
 
 KIOKU reads the names and executable paths of running processes, and the title of your active window, every 5 seconds. This data is used solely to build your local usage history.
 
-- **All data is stored locally** in `%APPDATA%\KIOKU\data.db` (Windows) or `~/.config/KIOKU/data.db` (Linux).
+- **All data is stored locally** in `%APPDATA%\KIOKU\data.db` (Windows), `~/Library/Application Support/KIOKU/data.db` (macOS), or `~/.config/KIOKU/data.db` (Linux).
 - **No data is transmitted** to any external server except automatic update checks against GitHub Releases.
 - The app does **not** record keystrokes, clipboard content, screenshots, or any other personal data.
 

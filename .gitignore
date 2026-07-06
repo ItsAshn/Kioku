@@ -24,3 +24,6 @@ nul
 # Local config with secrets
 opencode.json
 .gitnexus
+
+# Tooling
+.serena/
